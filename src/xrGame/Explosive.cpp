@@ -52,6 +52,9 @@ CExplosive::CExplosive(void)
 	m_fFragHit = 50.0f;
 	m_fUpThrowFactor = 0.f;
 
+	m_fFragAP = 1.0f;
+	m_fFragAirRes = 1.0f;
+
 
 	m_eSoundExplode = ESoundTypes(SOUND_TYPE_WEAPON_SHOOTING);
 
@@ -108,6 +111,14 @@ void CExplosive::Load(CInifile const* ini, LPCSTR section)
 
 	m_fUpThrowFactor = ini->r_float(section, "up_throw_factor");
 
+	// momopate: Extended shrapnel customization
+	m_fFragAP = READ_IF_EXISTS(pSettings, r_float, section, "frags_ap", 1.0f);
+	m_fFragAirRes = READ_IF_EXISTS(pSettings, r_float, section, "frags_air_resistance", 1.0f);
+	m_bFragTracer = READ_IF_EXISTS(pSettings, r_bool, section, "frags_tracer", false);
+	m_bFrag4to1Tracer = READ_IF_EXISTS(pSettings, r_bool, section, "frags_4to1_tracer", false);
+	m_bFragMagneticBeamShot = READ_IF_EXISTS(pSettings, r_bool, section, "frags_magnetic_beam_shot", false);	// Probably has literal zero use cases but, you know, what if?
+	m_bFragAllowRicochet = READ_IF_EXISTS(pSettings, r_bool, section, "frags_allow_ricochet", true);
+	u8FragColorID = READ_IF_EXISTS(pSettings, r_u8, section, "frags_tracer_color_ID", 0);
 
 	fWallmarkSize = ini->r_float(section, "wm_size");
 	R_ASSERT(fWallmarkSize>0);
@@ -124,8 +135,14 @@ void CExplosive::Load(CInifile const* ini, LPCSTR section)
 	m_layered_sounds.LoadSound(ini, section, "snd_explode", "sndExplode", false, m_eSoundExplode);
 
 	m_fExplodeDurationMax = ini->r_float(section, "explode_duration");
-
-	effector.effect_sect_name = ini->r_string("explode_effector", "effect_sect_name");
+	if( ini->line_exist(section,"explode_effector_sect_name") )
+	{
+		effector.effect_sect_name = ini->r_string(section, "explode_effector_sect_name");
+	}
+	else
+	{
+		effector.effect_sect_name = ini->r_string("explode_effector", "effect_sect_name");
+	}
 	//	if( ini->line_exist(section,"wallmark_section") )
 	//	{
 	m_wallmark_manager.m_owner = cast_game_object();
@@ -396,15 +413,20 @@ void CExplosive::Explode()
 		cartridge.param_s.kHit = 1.f;
 		//.		cartridge.param_s.kCritical			= 1.f;
 		cartridge.param_s.kImpulse = 1.f;
-		cartridge.param_s.kAP = 1.f;
+		cartridge.param_s.kAP = m_fFragAP;
+		cartridge.param_s.kAirRes = m_fFragAirRes;
 		cartridge.param_s.fWallmarkSize = fWallmarkSize;
+		cartridge.param_s.u8ColorID = u8FragColorID;
+		cartridge.m_4to1_tracer = m_bFrag4to1Tracer;
 		cartridge.bullet_material_idx = GMLib.GetMaterialIdx(WEAPON_MATERIAL_NAME);
-		cartridge.m_flags.set(CCartridge::cfTracer,FALSE);
+		cartridge.m_flags.set(CCartridge::cfTracer, m_bFragTracer ? TRUE : FALSE);
+		cartridge.m_flags.set(CCartridge::cfRicochet, m_bFragAllowRicochet ? TRUE : FALSE);
+		cartridge.m_flags.set(CCartridge::cfMagneticBeam, m_bFragMagneticBeamShot ? TRUE : FALSE);
 
 		Level().BulletManager().AddBullet(pos, frag_dir, m_fFragmentSpeed,
 		                                  m_fFragHit, m_fFragHitImpulse, Initiator(),
 		                                  cast_game_object()->ID(), m_eHitTypeFrag, m_fFragsRadius,
-		                                  cartridge, 1.f, SendHits);
+		                                  cartridge, m_fFragAirRes, SendHits, false, i + 1);
 	}
 
 	if (cast_game_object()->Remote()) return;
@@ -448,7 +470,9 @@ void CExplosive::Explode()
 		float dist_to_actor = pActor->Position().distance_to(pos);
 		float max_dist = EFFECTOR_RADIUS;
 		if (dist_to_actor < max_dist)
-			AddEffector(pActor, effExplodeHit, effector.effect_sect_name, (max_dist - dist_to_actor) / max_dist);
+			if (effector.effect_sect_name != "$no_effector"){
+				AddEffector(pActor, effExplodeHit, effector.effect_sect_name, (max_dist - dist_to_actor) / max_dist);
+			}
 	}
 }
 

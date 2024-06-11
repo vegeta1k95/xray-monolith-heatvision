@@ -42,6 +42,10 @@ public:
 	void SetFont(CGameFont* pFont);
 	CGameFont* GetFont();
 
+public:
+	bool bComplexMode;
+	bool bLineWrap;
+
 protected:
 	CGameFont* m_pFont;
 	float m_def_item_height;

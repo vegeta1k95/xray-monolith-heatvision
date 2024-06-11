@@ -29,6 +29,7 @@ public:
 	virtual void OnMoveToSlot(const SInvItemPlace& prev);
 	virtual void OnMoveToRuck(const SInvItemPlace& previous_place);
 	virtual void OnH_A_Chield();
+	virtual float GetControlInertionFactor() const { return m_fControlInertionFactor; };
 
 protected:
 	HitImmunity::HitTypeSVec m_HitTypeProtection;

@@ -454,6 +454,7 @@ public:
 	LPCSTR CharacterName();
 	LPCSTR CharacterIcon();
 	LPCSTR CharacterCommunity();
+	luabind::object CharacterDialogs();
 	int CharacterRank();
 	int CharacterReputation();
 
@@ -743,6 +744,8 @@ public:
 
 	bool wounded() const;
 	void wounded(bool value);
+
+	void set_enable_movement_collision(bool value);
 
 	CSightParams sight_params();
 
@@ -1037,9 +1040,9 @@ public:
 	void SetArtefactAdditionalInventoryWeight(float value);
 
 	//Eatable items
-	void SetRemainingUses(u16 value);
-	u16 GetRemainingUses();
-	u16 GetMaxUses();
+	void SetRemainingUses(u8 value);
+	u8 GetRemainingUses();
+	u8 GetMaxUses();
 
 	//Phantom
 	void PhantomSetEnemy(CScriptGameObject*);
@@ -1055,6 +1058,11 @@ public:
 	float GetAdditionalMaxWalkWeight() const;
 	void SetAdditionalMaxWalkWeight(float add_max_walk_weight);
 	float GetTotalWeight() const;
+
+	// demonized: force update of weight
+	float GetTotalWeightForceUpdate() const;
+	void UpdateWeight() const;
+
 	float Weight() const;
 
 	float GetActorJumpSpeed() const;
@@ -1086,6 +1094,9 @@ public:
 	void SetActorSprintStrafeCoef(float val);
 
 	void SetCharacterIcon(LPCSTR iconName);
+
+	// demonized: get talking npc
+	CScriptGameObject* get_talking_npc();
 #endif
 	//-Alundaio
 

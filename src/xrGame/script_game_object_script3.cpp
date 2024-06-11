@@ -293,6 +293,7 @@ class_<CScriptGameObject>& script_register_game_object2(class_<CScriptGameObject
 		.def("character_name", &CScriptGameObject::CharacterName)
 		.def("character_icon", &CScriptGameObject::CharacterIcon)
 		.def("character_rank", &CScriptGameObject::CharacterRank)
+		.def("character_dialogs", &CScriptGameObject::CharacterDialogs)
 		.def("set_character_rank", &CScriptGameObject::SetCharacterRank)
 		.def("change_character_rank", &CScriptGameObject::ChangeCharacterRank)
 		.def("character_reputation", &CScriptGameObject::CharacterReputation)
@@ -399,6 +400,9 @@ class_<CScriptGameObject>& script_register_game_object2(class_<CScriptGameObject
 
 		.def("wounded", (bool (CScriptGameObject::*)() const)(&CScriptGameObject::wounded))
 		.def("wounded", (void (CScriptGameObject::*)(bool))(&CScriptGameObject::wounded))
+
+		// demonized: Toggle movement collision for stalker NPCs
+		.def("set_enable_movement_collision", &CScriptGameObject::set_enable_movement_collision)
 
 		.def("mark_item_dropped", &CScriptGameObject::MarkItemDropped)
 		.def("marked_dropped", &CScriptGameObject::MarkedDropped)
@@ -559,6 +563,11 @@ class_<CScriptGameObject>& script_register_game_object2(class_<CScriptGameObject
 		.def("get_additional_max_walk_weight", &CScriptGameObject::GetAdditionalMaxWalkWeight)
 		.def("set_additional_max_walk_weight", &CScriptGameObject::SetAdditionalMaxWalkWeight)
 		.def("get_total_weight", &CScriptGameObject::GetTotalWeight)
+
+		// demonized: force update of weight
+		.def("update_weight", &CScriptGameObject::UpdateWeight)
+		.def("get_total_weight_force_update", &CScriptGameObject::GetTotalWeightForceUpdate)
+
 		.def("weight", &CScriptGameObject::Weight)
 
 		.def("get_actor_jump_speed", &CScriptGameObject::GetActorJumpSpeed)
@@ -596,6 +605,9 @@ class_<CScriptGameObject>& script_register_game_object2(class_<CScriptGameObject
 		.def("set_enable_anomalies_pathfinding", &CScriptGameObject::set_enable_anomalies_pathfinding)
 		.def("get_enable_anomalies_damage", &CScriptGameObject::get_enable_anomalies_damage)
 		.def("set_enable_anomalies_damage", &CScriptGameObject::set_enable_anomalies_damage)
+
+		// demonized: get object currently talking to
+		.def("get_talking_npc", &CScriptGameObject::get_talking_npc)
 #endif
 
 		.def("set_can_be_harmed", &CScriptGameObject::SetCanBeHarmed)

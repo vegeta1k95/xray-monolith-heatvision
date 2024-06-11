@@ -902,6 +902,28 @@ int CScriptGameObject::CharacterRank()
 	return monster->Rank();
 }
 
+luabind::object CScriptGameObject::CharacterDialogs()
+{
+	CInventoryOwner* pInventoryOwner = smart_cast<CInventoryOwner*>(&object());
+
+	luabind::object table = luabind::newtable(ai().script_engine().lua());
+
+	if (!pInventoryOwner)
+	{
+		ai().script_engine().script_log(ScriptStorage::eLuaMessageTypeError,
+			"CharacterDialogs available only for InventoryOwner");
+		return table;
+	}
+
+	int i = 0;
+	for (const auto& dialog_id : pInventoryOwner->Dialogs()) {
+		table[i+1] = dialog_id.c_str();
+		i++;
+	}
+
+	return table;
+}
+
 void CScriptGameObject::SetCharacterRank(int char_rank)
 {
 	CInventoryOwner* pInventoryOwner = smart_cast<CInventoryOwner*>(&object());
@@ -2366,6 +2388,32 @@ float CScriptGameObject::GetTotalWeight() const
 		                                "CInventoryOwner : cannot access class member GetTotalWeight!");
 		return (false);
 	}
+	return (inventory_owner->inventory().TotalWeight());
+}
+
+// demonized: force update of weight
+void CScriptGameObject::UpdateWeight() const
+{
+	CInventoryOwner* inventory_owner = smart_cast<CInventoryOwner*>(&object());
+	if (!inventory_owner)
+	{
+		ai().script_engine().script_log(ScriptStorage::eLuaMessageTypeError,
+										"CInventoryOwner : cannot access class member GetTotalWeightForceUpdate!");
+		return;
+	}
+	inventory_owner->inventory().CalcTotalWeight();
+}
+
+float CScriptGameObject::GetTotalWeightForceUpdate() const
+{
+	CInventoryOwner* inventory_owner = smart_cast<CInventoryOwner*>(&object());
+	if (!inventory_owner)
+	{
+		ai().script_engine().script_log(ScriptStorage::eLuaMessageTypeError,
+										"CInventoryOwner : cannot access class member GetTotalWeightForceUpdate!");
+		return (false);
+	}
+	inventory_owner->inventory().CalcTotalWeight();
 	return (inventory_owner->inventory().TotalWeight());
 }
 

@@ -161,6 +161,15 @@ protected:
 	float m_fLightRange;
 	float m_fLightTime;
 
+	// momopate: Extended shrapnel customization
+	float m_fFragAP;
+	float m_fFragAirRes;
+	bool m_bFragTracer;
+	bool m_bFrag4to1Tracer;
+	bool m_bFragMagneticBeamShot;
+	bool m_bFragAllowRicochet;
+	u8 u8FragColorID;
+
 	virtual void StartLight();
 	virtual void StopLight();
 

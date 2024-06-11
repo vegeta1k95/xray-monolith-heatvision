@@ -49,6 +49,8 @@ void CCartridge::Load(LPCSTR section, u8 LocalAmmoType, float ap_mod)
 	param_s.impair = pSettings->r_float(section, "impair");
 	param_s.fWallmarkSize = pSettings->r_float(section, "wm_size");
 
+	param_s.tracer_silenced = READ_IF_EXISTS(pSettings, r_bool, section, "tracer_silenced", false);
+
 	m_flags.set(cfCanBeUnlimited | cfRicochet, TRUE);
 	m_flags.set(cfMagneticBeam, FALSE);
 

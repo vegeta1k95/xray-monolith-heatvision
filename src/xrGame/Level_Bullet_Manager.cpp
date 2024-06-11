@@ -13,6 +13,7 @@
 #include "game_cl_mp.h"
 #include "reward_event_generator.h"
 #include "material_manager.h"
+#include "Weapon.h"
 
 #include "../Include/xrRender/UIRender.h"
 #include "../Include/xrRender/Kinematics.h"
@@ -98,6 +99,18 @@ void SBullet::Init(const Fvector& position,
 	if (flags.allow_tracer && cartridge.m_4to1_tracer && iShotNum % 5 != 0)
 		flags.allow_tracer = false;
 	//-Alundaio
+
+	// demonized: hide tracer when weapon has silencer
+	if (!cartridge.param_s.tracer_silenced)		// momopate: Make it optional
+	{
+		CObject* g_obj = Level().Objects.net_Find(weapon_id);
+		if (g_obj) 
+		{
+			CWeapon* weapon = smart_cast<CWeapon*>(g_obj);
+			if (weapon && weapon->IsSilencerAttached())
+				flags.allow_tracer = false;
+		}
+	}
 
 	flags.allow_ricochet = !!cartridge.m_flags.test(CCartridge::cfRicochet);
 	flags.explosive = !!cartridge.m_flags.test(CCartridge::cfExplosive);
@@ -1080,6 +1093,7 @@ float SqrDistancePointToSegment(const Fvector& pt, const Fvector& orig, const Fv
 	return diff.square_magnitude();
 }
 
+BOOL g_render_short_tracers = 1;
 void CBulletManager::Render()
 {
 #ifdef DEBUG
@@ -1146,7 +1160,13 @@ void CBulletManager::Render()
 			                                 : Fvector().set(0.f, 0.f, 1.f);
 
 		if (length < m_fTracerLengthMin)
-			continue;
+		{
+			// momopate: Optionally cap tracers to their minimum length instead of not rendering them
+			if (g_render_short_tracers)
+				length = m_fTracerLengthMin;
+			else
+				continue;
+		}
 
 		if (length > m_fTracerLengthMax)
 			length = m_fTracerLengthMax;
